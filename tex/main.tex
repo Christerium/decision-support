@@ -10,5 +10,16 @@
 \maketitle
 
 \section{Introduction}
+We only need to add edges with G.add edge(node1, node2, capacity)
+It autmatically adds nodes
 
+Pyvis does not add nodes automatically
+
+net.toggle physics(True), sometimes makes sense to set to False, It makes the graph dragable
+
+Generate $C_l$ cut where $\gamma = 1$ and generate $C_m$ where $\gamma = u$.
+Then calculate the bisection to obtain a new $\hat{\gamma}$. 
+Then generate a cut with $\hat{\gamma}$ and do this until we find a cut that has less than $B$ large edges.
+
+% Transform the problem to max clique, 
 \end{document}
