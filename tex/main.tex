@@ -46,11 +46,16 @@ Then generate a cut with $\hat{\gamma}$ and do this until we find a cut that has
     \end{itemize}
     \item Implement the bisection algorithm for NFI
     \begin{itemize}
-        \item Find minimum cut $C$
+        \item Generate a minimum cut $C_m$ (minimum Cut to the original graph) and get $q(C_m)$ and $p(C_m)$
+        \item Generate a least cut $C_l$ (minimum cut of G with the capacity of all arcs set to 1) and get $q(C_l)$ and $p(C_l)$
+        \item Calculate $\hat{\gamma}$ and generate the cut with capacity-$\hat{\gamma}$-min-cut $\hat{C}$
+        \item If $cap^\gamma(\hat{C}) \leq cap^\gamma(C_l)$ and $q(\hat{C}) \notin \{q(C_l),q(C_m)\}$ then generate two new cuts using $((C_l, \hat{C}), (\hat{C}, C_m))$
+        \item otherwise return $\{C_1, C_2\}$
+        \item The minimum cut is the smallest set of edges that, when removed, disconnects the graph into two disjoint subgraphs.
         \item Identify the arcs $R \in C$ which are removed from the graph
         \item $C_m$ is optimal if it contains at least $B$ large arcs with $val(C_m) = \text{cap of arcs in cut} - \text{cap of removed arcs}$
         \item Assume: Any minimum cut in $G$ contains at most $B-1$ large arcs
-        \item $C_l$ denote a least cut in G, i.e.,  a cut with least possible number of arcs. Then $C_l$ is optimal if it contains at most $B$ large arcs
+        \item $C_l$ denotes a least cut in G, i.e.,  a cut with least possible number of arcs. Then $C_l$ is optimal if it contains at most $B$ large arcs
         \item Assume: Any least cut in $G$ contains at least $B+1$ large arcs
     \end{itemize}
     \item Find in the NFI graph a strategy for NFI with budget $B = |E| - \binom{K}{2} $ that has value $K*m$ to get a clique of size $K$
@@ -60,4 +65,32 @@ Then generate a cut with $\hat{\gamma}$ and do this until we find a cut that has
         \item Suspect, that we have to do this for different K and raise the K's
     \end{itemize}
 \end{itemize}
+
+$R \subseteq E$ is a solution to the u-NFI problem with objective value val(R) which equals the capacity of a minimum s-t-cut in the graph $G_R$.
+Minimum s-t-cut of a graph $G_R$ is a minimum cut (cut with least number of arcs, which disjoints s and t) and the capacity of this cut equals the maximum 
+flow of the grpah. (Value of a cut is the sum of the capacities of the arcs in the cut) -> cut != removing arcs
+
+So network flow interdiction problem is about finding a subset of arcs $R$ that minimizes the maximum flow from s to t, where all arcs have different capacities 
+(do not need to be different but there are several different ones).
+
+The u-NFI has small (1) and large (u) arcs. Here we need to keep in mind, that the val(C) = val($R_C$) = sum of capacity of the $B$ largest arcs
+
+
+If think the idea of algorithm to find a good solution to the u-NFI is that the we have to compute q-min-cuts 
+(cut with smallest capacity in graph G amongst all cuts with exactly q large arcs) for different values of q. So find the minimum cut with minimal capacity
+and exactly q large arcs for different values of q and caluclating a q-min-cut is NP-hard.
+
+So we calculate minimum cuts when varying the capacity of the large arcs to obtain cuts with different numbers of q.
+
+If $C^\gamma$ is a capacity-$\gamma$-min-cut for some $\gamma \geq 1$, then it is a q-min-cut for $q = q(C^\gamma)$. This means that if we have a capacity-
+$\gamma$-min-cut $C^\gamma$ we have found a q-min-cut with q = q($C^\gamma$) or alternatively, by finding a minimum cut for a certain $\gamma$ we obtain a q-min-cut 
+where q equals the number of large arcs in our minimum cut. 
+
+Therefore, we start with $C_l$ and $C_m$ as the q obtained from these are bounds on the optimal q. Then we pick the next $\gamma$ to check for by doing this 
+bisection. If this cut has a lower capacity than our lower bound (is below our two lines) we do the bisection again for $C_l$ $\hat{C}$ and $\hat{C}$ $C_m$.
+An this we do again and again until $\hat{C}$ has a higher capacity. 
+
+To finish this up, we will not find a single cut, but rather a set of two cuts which will give us a lower and upper bound on the optimal value.
+
+
 \end{document}
