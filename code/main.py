@@ -2,26 +2,40 @@ import networkx as nx
 from pyvis.network import Network
 import argparse
 from pathlib import Path
+import os
 
 def read_instance(file):
     with open(file) as f:
         edges = []
+        num_vertices = 0
         for line in f:
-            if line[0] == e:
+            if line[0] == "p":
                 as_list = line.split(" ")
-                edges.append(as_list[1], as_list[2])
+                num_vertices = int(as_list[2])
+            if line[0] == "e":
+                as_list = line.rstrip("\n").split(" ")
+                edges.append((int(as_list[1]), int(as_list[2])))
+    
+    return edges, num_vertices
 
-
+def create_graph_from_edges(edges):
+    G = nx.DiGraph()
+    for e in edges:
+        G.add_edge(*e)
+    return G
+        
+def plot_graph(graph, visualize=False):
+    net = Network(directed=True)
+    net.from_nx(graph)
+    net.repulsion()
+    if visualize:
+        net.show('mygraph.html', notebook=False)
+    return net
+        
 def main():
-    inputfile = ''
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--file', type=Path)
-    #parser.add_argument('-b', '--binary', type=int)
-    args = parser.parse_args()
-    inputfile = args.file
-
-    read_instance(file)
-
+    edges, num_vertices = read_instance("code\\C125.9.clq")
+    G = create_graph_from_edges(edges[0:100])
+    net = plot_graph(G, True)
 
 if __name__ == "__main__":
     main()
