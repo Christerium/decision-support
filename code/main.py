@@ -2,7 +2,13 @@ import networkx as nx
 from pyvis.network import Network
 import argparse
 from pathlib import Path
+import matplotlib.pyplot as plt
 import os
+
+import gurobipy as gp
+from gurobipy import GRB
+
+import scipy.special as sci
 
 # Reading an instance file from the DIMACS library
 def read_instance(file): 
@@ -20,9 +26,18 @@ def read_instance(file):
     return edges, num_vertices  # Return the list of edges and number of vertices
 
 def create_graph_from_edges(edges): # Simple function to create a Graph from a list of edges
-    G = nx.DiGraph()                # Create a empty grpah instance
+    #G = nx.DiGraph()                # Create a empty grpah instance
+    G = nx.MultiDiGraph()
     G.add_edges_from(edges)         # Adds all edges from a list of tuples
+    
     return G
+
+def compute_min_cut(graph):
+    cut_value, partition = nx.minimum_cut(graph, 's', 't')
+    # Return the nodes in the source and sink sets
+    source_set, sink_set = partition
+    return source_set, sink_set
+
         
 def plot_graph(graph, visualize=False):     # Function gets a Graph and a boolean if the graph should be visualized
     net = Network(directed=True)            # Create an empty Network with directed arcs
@@ -31,14 +46,137 @@ def plot_graph(graph, visualize=False):     # Function gets a Graph and a boolea
         net.show('mygraph.html', notebook=False)
     return net
 
-def transform_digraph_to_NFI():
-    pass
+def mipmodel(first_layer_edges, second_layer_edges, third_layer_edges, node_list, K, B):  # edge_list is a list of tuples with indices for all edges 
+                                            # node_list is a list of indices for all nodes
+    m = gp.Model("mip1")
+
+    # Create variables
+    alpha = m.addVars(node_list, vtype=GRB.BINARY, name="alpha")
+    edge_list = first_layer_edges + second_layer_edges + third_layer_edges # multiply by length of first_layer_edges = m = # of edges
+    beta = m.addVars(edge_list, vtype=GRB.BINARY, name="beta")
+    gamma = m.addVars(edge_list, vtype=GRB.BINARY, name="gamma")
+    z = m.addVar(vtype=GRB.INTEGER, name="z")
+
+    #m.setObjective(beta.sum('*', '*') + beta.sum('s', '*'), GRB.MINIMIZE)
+    m.setObjective(z, GRB.MINIMIZE)
+    #m.setObjective(2*beta.sum('s', '*'), GRB.MINIMIZE)
+
+    m.addConstr(beta.sum('*', '*') + beta.sum('s', '*') == z)
+    m.addConstr(z >= K)
+
+    m.addConstrs(alpha[x] - alpha[y] + beta[x,y] + gamma[x,y] >= 0 for (x,y) in edge_list)
+
+    m.addConstr(alpha["t"] - alpha["s"] == 1)
+
+    m.addConstr(gamma.sum('*', '*') == B) # <= or ==
+
+    m.addConstrs(beta[x,y] == 0 for (x,y) in first_layer_edges)
+    m.addConstrs(gamma[x,y] == 0 for (x,y) in second_layer_edges+third_layer_edges)
+
+    m.addConstrs(gamma[y, x] <= alpha[x] for (y,x) in edge_list)
+
+    m.addConstr(beta.sum('*','*') == K)
+
+    # # Add constraint: x + 2 y + 3 z <= 4
+    # m.addConstr(x + 2 * y + 3 * z <= 4, "c0")
+
+    # # Add constraint: x + y >= 1
+    # m.addConstr(x + y >= 1, "c1")
+
+    return m
+
 
 def main():
-    edges, num_vertices = read_instance("instances\\C125.9.clq")     #reading a instance ("folder\\file") 
-    G = create_graph_from_edges(edges[0:10])        # creating a graph
-    # for visualization or if you want to run the code on smaller instances edges[0:X], where X is the number of edges you want to use
-    net = plot_graph(G, True)   # save the Network, if you say False here it will not be saved as html, but can be done so later on with net.show('mygraph.html', notebook=False)
+    edges, num_vertices = read_instance("instances/brock200_2.clq")     #reading a instance ("folder\\file") 
+    #num_vertices = 4
+    #edges = [(1,2), (1,3), (2,3), (3,4), (2,4)]
+    # Vertices = nodes in original graph, Nodes = nodes in NFI graph
+
+    edges = edges[0:1000]
+
+    node_list_edges = [f"i_{x}" for x in range(1,len(edges)+1)]
+    node_list_vertices = [f"j_{x}" for x in range(1,num_vertices+1)]
+    node_list = ["s"] + node_list_edges + node_list_vertices + ["t"]
+  
+    first_layer_edges = [("s",x) for x in node_list_edges]
+    third_layer_edges = [(x,"t") for x in node_list_vertices]
+
+    second_layer_edges = []
+    iter = 1
+    for (x,y) in edges:
+        second_layer_edges.append((f"i_{iter}",f"j_{x}"))
+        second_layer_edges.append((f"i_{iter}",f"j_{y}"))
+        iter += 1
+
+
+
+    # G = create_graph_from_edges(edges[0:10])        # creating a graph
+    # # for visualization or if you want to run the code on smaller instances edges[0:X], where X is the number of edges you want to use
+    # #net = plot_graph(G, True)   # save the Network, if you say False here it will not be saved as html, but can be done so later on with net.show('mygraph.html', notebook=False)
+
+    # #first_layer_edges = [("s", x, {"capacity": 2*num_vertices}) for x in range(1,num_vertices+1)]
+    # #first_layer_edges = [("s", f"x_{x}", {"capacity": 12}) for x in range(1,7)]
+    # #third_layer_edges = [(f"y_{x}", "t", {"capacity": })]
+
+    # edge_list = [(1,2), (1,3), (2,3), (2,4), (3,4)]
+    # num_edges = len(edge_list)
+
+    # edge_nodes = [f"i_{x}" for x in range(1,num_edges+1)]
+    # first_layer_edges = [("s", x) for x in edge_nodes]
+    # #print(first_layer_edges)
+    # vertice_nodes = [f"j_{x}" for x in range(1,5)]
+    # thrid_layer_edges = [(x, "t") for x in vertice_nodes]
+
+    # second_layer = []
+    # i = 1
+    # for (x,y) in edge_list:
+    #     second_layer.append((i, x))
+    #     second_layer.append((i, y))
+    #     i += 1
+
+    # #print(second_layer)
+    # second_layer_edges = [(f"i_{x}", f"j_{y}") for (x,y) in second_layer]
+
+    # #print(second_layer_edges_one)
+
+    # G2 = nx.DiGraph()
+    # # G2.add_node("s", subset = "S")
+    # # G2.add_nodes_from(edge_nodes, subset = "edges")
+    # # G2.add_nodes_from(vertice_nodes, subset = "vertices")
+    # # G2.add_node("t", subset = "T")
+    # G2.add_edges_from(first_layer_edges, capacity = 2.4)
+    # G2.add_edges_from(thrid_layer_edges, capacity = num_edges)
+    # G2.add_edges_from(second_layer_edges, capacity = num_edges)
+
+    # # pos = nx.multipartite_layout(G2)
+    # # nx.draw(G2, pos=pos)
+    # # plt.show()
+
+    try: 
+
+        K = 12
+        B = len(edges) - sci.binom(K, 2)
+
+        m = mipmodel(first_layer_edges, second_layer_edges, third_layer_edges, node_list, K, B)
+        m.optimize()
+
+        #print(m.getVars())
+
+        #print(f"Here {m.alpha.VarName}")
+
+        for v in m.getVars():
+            if v.X != 0:
+                print(f"{v.VarName} {v.X:g}")
+
+        print(f"Obj: {m.ObjVal:g}")
+
+    except gp.GurobiError as e:
+        print(f"Error code {e.errno}: {e}")
+
+    except AttributeError:
+        print("Encountered an attribute error")
+
+
 
 if __name__ == "__main__":
     main()
