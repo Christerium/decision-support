@@ -87,12 +87,14 @@ def mipmodel(first_layer_edges, second_layer_edges, third_layer_edges, node_list
 
 
 def main():
-    edges, num_vertices = read_instance("instances/brock200_2.clq")     #reading a instance ("folder\\file") 
+    #edges, num_vertices = read_instance("instances/brock200_2.clq")     #reading a instance ("folder\\file") 
+    edges, num_vertices = read_instance("instances/test.clq")
+    
     #num_vertices = 4
     #edges = [(1,2), (1,3), (2,3), (3,4), (2,4)]
     # Vertices = nodes in original graph, Nodes = nodes in NFI graph
 
-    edges = edges[0:1000]
+    #edges = edges[0:300]
 
     node_list_edges = [f"i_{x}" for x in range(1,len(edges)+1)]
     node_list_vertices = [f"j_{x}" for x in range(1,num_vertices+1)]
@@ -154,7 +156,7 @@ def main():
 
     try: 
 
-        K = 12
+        K = 3
         B = len(edges) - sci.binom(K, 2)
 
         m = mipmodel(first_layer_edges, second_layer_edges, third_layer_edges, node_list, K, B)

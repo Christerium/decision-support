@@ -10,100 +10,122 @@
 
 \maketitle
 
-\section{Introduction}
-We only need to add edges with G.add edge(node1, node2, capacity)
-It automatically adds nodes
+% \section{Introduction}
+% We only need to add edges with G.add edge(node1, node2, capacity)
+% It automatically adds nodes
 
-Pyvis does not add nodes automatically
+% Pyvis does not add nodes automatically
 
-net.toggle physics(True), sometimes makes sense to set to False, It makes the graph draggable
+% net.toggle physics(True), sometimes makes sense to set to False, It makes the graph draggable
 
-Generate $C_l$ cut where $\gamma = 1$ and generate $C_m$ where $\gamma = u$.
-Then calculate the bisection to obtain a new $\hat{\gamma}$. 
-Then generate a cut with $\hat{\gamma}$ and do this until we find a cut that has less than $B$ large edges.
+% Generate $C_l$ cut where $\gamma = 1$ and generate $C_m$ where $\gamma = u$.
+% Then calculate the bisection to obtain a new $\hat{\gamma}$.
+% Then generate a cut with $\hat{\gamma}$ and do this until we find a cut that has less than $B$ large edges.
 
-% Transform the problem to max clique, 
-\section{Notation}
-\begin{itemize}
-    \item A cut is a partition $V  = S \cup T$ of the nodes of G such that $s \in S$ and $t \in T$
-    \item An arc $r \in E$ is in a cut $C = (S,T)$ if $\alpha(r) \in S$ and $\omega(r) \in T$
-    \item Arcs having capacity $u$ are called large arcs
-    \item Arcs having capacity 1 are called small arcs
-    \item $q(C) := \#$(large arcs in $C$)
-    \item $p(C) := \#$(small arcs in $C$)
-\end{itemize}
-\section{What's to do?}
-\begin{itemize}
-    \item Transform the digraph into a NFI graph
-    \begin{itemize}
-        \item Create a $s$-node
-        \item Create a node for every edge in the digraph
-        \item Create edges from $s$ to every \emph{edge-node} $i_x$ with capacity 2m
-        \item Create a node for every node in the digraph
-        \item Create edges from every \emph{edge-node} to every \emph{node-node} $j_1$ which is connected by the edges with capacity m
-        \item Create a node $t$ and connect the \emph{node-nodes} with the $t$ node by edges with capacity m
-        \item where $m = |E|$
-    \end{itemize}
-    \item Implement the bisection algorithm for NFI
-    \begin{itemize}
-        \item Generate a minimum cut $C_m$ (minimum Cut to the original graph) and get $q(C_m)$ and $p(C_m)$
-        \item Generate a least cut $C_l$ (minimum cut of G with the capacity of all arcs set to 1) and get $q(C_l)$ and $p(C_l)$
-        \item Calculate $\hat{\gamma}$ and generate the cut with capacity-$\hat{\gamma}$-min-cut $\hat{C}$
-        \item If $cap^\gamma(\hat{C}) \leq cap^\gamma(C_l)$ and $q(\hat{C}) \notin \{q(C_l),q(C_m)\}$ then generate two new cuts using $((C_l, \hat{C}), (\hat{C}, C_m))$
-        \item otherwise return $\{C_1, C_2\}$
-        \item The minimum cut is the smallest set of edges that, when removed, disconnects the graph into two disjoint subgraphs.
-        \item Identify the arcs $R \in C$ which are removed from the graph
-        \item $C_m$ is optimal if it contains at least $B$ large arcs with $val(C_m) = \text{cap of arcs in cut} - \text{cap of removed arcs}$
-        \item Assume: Any minimum cut in $G$ contains at most $B-1$ large arcs
-        \item $C_l$ denotes a least cut in G, i.e.,  a cut with least possible number of arcs. Then $C_l$ is optimal if it contains at most $B$ large arcs
-        \item Assume: Any least cut in $G$ contains at least $B+1$ large arcs
-    \end{itemize}
-    \item Find in the NFI graph a strategy for NFI with budget $B = |E| - \binom{K}{2} $ that has value $K*m$ to get a clique of size $K$
-    \item Transform it back to find the max-clique
-    \item Use the bisection algorithm for NFI to find large cliques for the benchmark set
-    \begin{itemize}
-        \item Suspect, that we have to do this for different K and raise the K's
-    \end{itemize}
-\end{itemize}
+% % Transform the problem to max clique, 
+% \section{Notation}
+% \begin{itemize}
+%     \item A cut is a partition $V  = S \cup T$ of the nodes of G such that $s \in S$ and $t \in T$
+%     \item An arc $r \in E$ is in a cut $C = (S,T)$ if $\alpha(r) \in S$ and $\omega(r) \in T$
+%     \item Arcs having capacity $u$ are called large arcs
+%     \item Arcs having capacity 1 are called small arcs
+%     \item $q(C) := \#$(large arcs in $C$)
+%     \item $p(C) := \#$(small arcs in $C$)
+% \end{itemize}
+% \section{What's to do?}
+% \begin{itemize}
+%     \item Transform the digraph into a NFI graph
+%           \begin{itemize}
+%               \item Create a $s$-node
+%               \item Create a node for every edge in the digraph
+%               \item Create edges from $s$ to every \emph{edge-node} $i_x$ with capacity 2m
+%               \item Create a node for every node in the digraph
+%               \item Create edges from every \emph{edge-node} to every \emph{node-node} $j_1$ which is connected by the edges with capacity m
+%               \item Create a node $t$ and connect the \emph{node-nodes} with the $t$ node by edges with capacity m
+%               \item where $m = |E|$
+%           \end{itemize}
+%     \item Implement the bisection algorithm for NFI
+%           \begin{itemize}
+%               \item Generate a minimum cut $C_m$ (minimum Cut to the original graph) and get $q(C_m)$ and $p(C_m)$
+%               \item Generate a least cut $C_l$ (minimum cut of G with the capacity of all arcs set to 1) and get $q(C_l)$ and $p(C_l)$
+%               \item Calculate $\hat{\gamma}$ and generate the cut with capacity-$\hat{\gamma}$-min-cut $\hat{C}$
+%               \item If $cap^\gamma(\hat{C}) \leq cap^\gamma(C_l)$ and $q(\hat{C}) \notin \{q(C_l),q(C_m)\}$ then generate two new cuts using $((C_l, \hat{C}), (\hat{C}, C_m))$
+%               \item otherwise return $\{C_1, C_2\}$
+%               \item The minimum cut is the smallest set of edges that, when removed, disconnects the graph into two disjoint subgraphs.
+%               \item Identify the arcs $R \in C$ which are removed from the graph
+%               \item $C_m$ is optimal if it contains at least $B$ large arcs with $val(C_m) = \text{cap of arcs in cut} - \text{cap of removed arcs}$
+%               \item Assume: Any minimum cut in $G$ contains at most $B-1$ large arcs
+%               \item $C_l$ denotes a least cut in G, i.e.,  a cut with least possible number of arcs. Then $C_l$ is optimal if it contains at most $B$ large arcs
+%               \item Assume: Any least cut in $G$ contains at least $B+1$ large arcs
+%           \end{itemize}
+%     \item Find in the NFI graph a strategy for NFI with budget $B = |E| - \binom{K}{2} $ that has value $K*m$ to get a clique of size $K$
+%     \item Transform it back to find the max-clique
+%     \item Use the bisection algorithm for NFI to find large cliques for the benchmark set
+%           \begin{itemize}
+%               \item Suspect, that we have to do this for different K and raise the K's
+%           \end{itemize}
+% \end{itemize}
 
-$R \subseteq E$ is a solution to the u-NFI problem with objective value val(R) which equals the capacity of a minimum s-t-cut in the graph $G_R$.
-Minimum s-t-cut of a graph $G_R$ is a minimum cut (cut with least number of arcs, which disjoints s and t) and the capacity of this cut equals the maximum 
-flow of the grpah. (Value of a cut is the sum of the capacities of the arcs in the cut) -> cut != removing arcs
+% $R \subseteq E$ is a solution to the u-NFI problem with objective value val(R) which equals the capacity of a minimum s-t-cut in the graph $G_R$.
+% Minimum s-t-cut of a graph $G_R$ is a minimum cut (cut with least number of arcs, which disjoints s and t) and the capacity of this cut equals the maximum
+% flow of the grpah. (Value of a cut is the sum of the capacities of the arcs in the cut) -> cut != removing arcs
 
-So network flow interdiction problem is about finding a subset of arcs $R$ that minimizes the maximum flow from s to t, where all arcs have different capacities 
-(do not need to be different but there are several different ones).
+% So network flow interdiction problem is about finding a subset of arcs $R$ that minimizes the maximum flow from s to t, where all arcs have different capacities
+% (do not need to be different but there are several different ones).
 
-The u-NFI has small (1) and large (u) arcs. Here we need to keep in mind, that the val(C) = val($R_C$) = sum of capacity of the $B$ largest arcs
-
-
-If think the idea of algorithm to find a good solution to the u-NFI is that the we have to compute q-min-cuts 
-(cut with smallest capacity in graph G amongst all cuts with exactly q large arcs) for different values of q. So find the minimum cut with minimal capacity
-and exactly q large arcs for different values of q and caluclating a q-min-cut is NP-hard.
-
-So we calculate minimum cuts when varying the capacity of the large arcs to obtain cuts with different numbers of q.
-
-If $C^\gamma$ is a capacity-$\gamma$-min-cut for some $\gamma \geq 1$, then it is a q-min-cut for $q = q(C^\gamma)$. This means that if we have a capacity-
-$\gamma$-min-cut $C^\gamma$ we have found a q-min-cut with q = q($C^\gamma$) or alternatively, by finding a minimum cut for a certain $\gamma$ we obtain a q-min-cut 
-where q equals the number of large arcs in our minimum cut. 
-
-Therefore, we start with $C_l$ and $C_m$ as the q obtained from these are bounds on the optimal q. Then we pick the next $\gamma$ to check for by doing this 
-bisection. If this cut has a lower capacity than our lower bound (is below our two lines) we do the bisection again for $C_l$ $\hat{C}$ and $\hat{C}$ $C_m$.
-An this we do again and again until $\hat{C}$ has a higher capacity. 
-
-To finish this up, we will not find a single cut, but rather a set of two cuts which will give us a lower and upper bound on the optimal value.
+% The u-NFI has small (1) and large (u) arcs. Here we need to keep in mind, that the val(C) = val($R_C$) = sum of capacity of the $B$ largest arcs
 
 
-\section{Additional thoughts}
-\begin{enumerate}
-    \item capacity-$\gamma$-min-cut $(C^\gamma)$ are $q$-min-cut for $q = q(C^\gamma)$
-    \item $q(C^{\gamma_1}) \geq q(C^{\gamma_2})$ for $1 \geq \gamma_1 \geq \gamma_2 \geq u$ $\rightarrow \#$ of large arcs is decreasing for increasing $\gamma$
-    \item We have bounds on q with $q(C_l)$ and $q(C_m)$
-    \item Given two cuts $C_1$ and $C_2$, the next $\hat{\gamma}$ is chosen by the value, when $cap(C_1) = cap(C_2)$ in the graph $G^{\hat{\gamma}}$
-    \item If $cap(C^{\hat{\gamma}}) < cap(C_1) = cap(C_2)$ in $G^{\hat{\gamma}}$ bisection is called again for $C_1$ and $\hat{C}$ and $C_2$ and $\hat{C}$
-    \item Otherwise the recursion ends and returns $C_1$ and $C_2$
-    \item We can use digrpahs for finding the cut as it does not matter for finding the cut
-    \item When we have the cut, we try to find the $B$ where $B =  
-\end{enumerate}
-The target here is to find a capacity-$\gamma$-min-cut with high $\gamma$ (equals low \# of large arcs) wihle reducing a low cut capacity. 
+% If think the idea of algorithm to find a good solution to the u-NFI is that the we have to compute q-min-cuts
+% (cut with smallest capacity in graph G amongst all cuts with exactly q large arcs) for different values of q. So find the minimum cut with minimal capacity
+% and exactly q large arcs for different values of q and caluclating a q-min-cut is NP-hard.
+
+% So we calculate minimum cuts when varying the capacity of the large arcs to obtain cuts with different numbers of q.
+
+% If $C^\gamma$ is a capacity-$\gamma$-min-cut for some $\gamma \geq 1$, then it is a q-min-cut for $q = q(C^\gamma)$. This means that if we have a capacity-
+% $\gamma$-min-cut $C^\gamma$ we have found a q-min-cut with q = q($C^\gamma$) or alternatively, by finding a minimum cut for a certain $\gamma$ we obtain a q-min-cut
+% where q equals the number of large arcs in our minimum cut.
+
+% Therefore, we start with $C_l$ and $C_m$ as the q obtained from these are bounds on the optimal q. Then we pick the next $\gamma$ to check for by doing this
+% bisection. If this cut has a lower capacity than our lower bound (is below our two lines) we do the bisection again for $C_l$ $\hat{C}$ and $\hat{C}$ $C_m$.
+% An this we do again and again until $\hat{C}$ has a higher capacity.
+
+% To finish this up, we will not find a single cut, but rather a set of two cuts which will give us a lower and upper bound on the optimal value.
+
+
+% \section{Additional thoughts}
+% \begin{enumerate}
+%     \item capacity-$\gamma$-min-cut $(C^\gamma)$ are $q$-min-cut for $q = q(C^\gamma)$
+%     \item $q(C^{\gamma_1}) \geq q(C^{\gamma_2})$ for $1 \geq \gamma_1 \geq \gamma_2 \geq u$ $\rightarrow \#$ of large arcs is decreasing for increasing $\gamma$
+%     \item We have bounds on q with $q(C_l)$ and $q(C_m)$
+%     \item Given two cuts $C_1$ and $C_2$, the next $\hat{\gamma}$ is chosen by the value, when $cap(C_1) = cap(C_2)$ in the graph $G^{\hat{\gamma}}$
+%     \item If $cap(C^{\hat{\gamma}}) < cap(C_1) = cap(C_2)$ in $G^{\hat{\gamma}}$ bisection is called again for $C_1$ and $\hat{C}$ and $C_2$ and $\hat{C}$
+%     \item Otherwise the recursion ends and returns $C_1$ and $C_2$
+%     \item We can use digrpahs for finding the cut as it does not matter for finding the cut
+% \end{enumerate}
+% The target here is to find a capacity-$\gamma$-min-cut with high $\gamma$ (equals low \# of large arcs) wihle reducing a low cut capacity.
+
+
+\section{New Formulation}
+$\epsilon_P$ is indicatiing if path $P = (s, i, j, t)$ is interdicted. A path is interdicted if arc $(s,i)$ is of the path is interdicted.
+$\beta$ still has the same meaning. Set $S^j$ is a set of all paths that are going through vertice node $j$. And set $S^i$ is a set of paths
+going through edge nodes $i$.
+\begin{alignat*}{5}
+     & \min &  & \sum_{(i,j) \in E} &  & u_{(i,j)}\beta_{(i,j)} &  &                                 &  &                                                 \\
+     & s.t. &  &                    &  & \beta_{(j,t)}          &  & \geq (1-\epsilon_P) \quad \quad &  & \forall P \in S^j \; \forall j \in N_{vertices} \\
+     &      &  & \sum_{(i,j)\in E}  &  & \gamma_{(i,j)}         &  & \leq B                          &  & \forall P \in S^i \; \forall i \in N_{edges}
+\end{alignat*}
+
+
+\section*{Old Formulation}
+
+\begin{align*}
+    \min &  & \sum_{(i,j) \in E} u_{(i,j)}\beta_{(i,j)}            &        &                                  \\
+    s.t. &  & \alpha_i - \alpha_j + \beta_{(i,j)} + \gamma_{(i,j)} & \geq 0 & \forall (i,j) \in E              \\
+         &  & \alpha_t - \alpha_s                                  & \geq 1 &                                  \\
+         &  & \sum_{(i,j) \in E} \gamma_{(i,j)}                    & \leq B &                                  \\
+         &  & \gamma_{(i,j)} = 0                                   &        & \forall (i,j) \notin first layer \\
+         &  & \beta{(i,j)} = 0                                     &        & \forall (i,j) \notin thrid layer
+\end{align*}
 
 \end{document}
