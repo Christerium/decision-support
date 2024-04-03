@@ -1,14 +1,11 @@
-beta[j_3,t] 1
-beta[j_5,t] 1
-beta[j_6,t] 1
-beta[j_9,t] 1
-beta[j_15,t] 1
-beta[j_16,t] 1
-beta[j_17,t] 1
-beta[j_20,t] 1
-beta[j_22,t] 1
-beta[j_27,t] 1
-beta[j_28,t] 1
-beta[j_29,t] 1
-beta[j_32,t] 1
-beta[j_34,t] 1
+Optimal solution found (tolerance 1.00e-04)
+Best objective 3.000000000000e+00, best bound 3.000000000000e+00, gap 0.0000%
+alpha[i_4] 1
+alpha[i_5] 1
+gamma[j_1] 1
+gamma[j_2] 1
+gamma[j_3] 1
+Obj: 3
+
+(s,i) 4 and 5 = 1
+

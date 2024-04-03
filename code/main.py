@@ -85,10 +85,37 @@ def mipmodel(first_layer_edges, second_layer_edges, third_layer_edges, node_list
 
     return m
 
+def mipmodel_new(second_layer_edges, vertice_nodes, edge_nodes, B):
+    m = gp.Model("mip2")
+
+    K = 2
+    #K_assumed = 35
+    # alpha is 1 if edge_node i is interdicted / not interdicted?
+    # gamma is 1 if vertice_node j is in the clique /interdicted?
+    alpha = m.addVars(edge_nodes, vtype=GRB.BINARY, name="alpha")
+    gamma = m.addVars(vertice_nodes, vtype=GRB.BINARY, name="gamma")
+
+    #m.setObjective(gamma.sum('*'), GRB.MINIMIZE)
+    #m.setObjective(alpha.sum('*'), GRB.MAXIMIZE)
+    m.setObjective(alpha.sum('*'), GRB.MINIMIZE)
+
+    for (i,j) in second_layer_edges:
+        #m.addConstr(gamma[j] >= (1-alpha[i]))
+        #m.addConstr(alpha[i] <= (1-gamma[j]))
+        m.addConstr(alpha[i] >= gamma[j])
+    
+    #m.addConstr(alpha.sum('*') >= 10000)
+    m.addConstr(gamma.sum('*') == len(vertice_nodes) - K)
+
+    # Testing a constraint that raises the objective value to the # of cliques
+    #m.addConstr(alpha.sum('*') >= len (edge_nodes) - sci.binom(K, 2))
+
+    return m
+
 
 def main():
-    #edges, num_vertices = read_instance("instances/brock200_2.clq")     #reading a instance ("folder\\file") 
-    edges, num_vertices = read_instance("instances/test.clq")
+    edges, num_vertices = read_instance("instances/DSJC500_5.clq")     #reading a instance ("folder\\file") 
+    #edges, num_vertices = read_instance("instances/test.clq")
     
     #num_vertices = 4
     #edges = [(1,2), (1,3), (2,3), (3,4), (2,4)]
@@ -110,6 +137,7 @@ def main():
         second_layer_edges.append((f"i_{iter}",f"j_{y}"))
         iter += 1
 
+        
 
 
     # G = create_graph_from_edges(edges[0:10])        # creating a graph
@@ -156,10 +184,11 @@ def main():
 
     try: 
 
-        K = 3
+        K = 11
         B = len(edges) - sci.binom(K, 2)
 
-        m = mipmodel(first_layer_edges, second_layer_edges, third_layer_edges, node_list, K, B)
+        #m = mipmodel(first_layer_edges, second_layer_edges, third_layer_edges, node_list, K, B)
+        m = mipmodel_new(second_layer_edges, node_list_vertices, node_list_edges, B)
         m.optimize()
 
         #print(m.getVars())
