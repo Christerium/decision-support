@@ -112,9 +112,22 @@ def mipmodel_new(second_layer_edges, vertice_nodes, edge_nodes, B):
 
     return m
 
+def plot_degree_dist(edges):
+    G = create_graph_from_edges(edges)
+
+    degree_sequence = sorted([d for n, d in G.degree()], reverse=True)
+    degree_count = nx.degree_histogram(G)
+
+    plt.bar(range(len(degree_count)), degree_count, width = 0.8, color ='b')
+    plt.xlabel('Degree')
+    plt.ylabel('Frequency')
+    plt.title('Degree Distribution')
+    plt.show()
+
+
 
 def main():
-    edges, num_vertices = read_instance("instances/DSJC500_5.clq")     #reading a instance ("folder\\file") 
+    edges, num_vertices = read_instance("instances/C125.9.clq")     #reading a instance ("folder\\file") 
     #edges, num_vertices = read_instance("instances/test.clq")
     
     #num_vertices = 4
@@ -187,17 +200,18 @@ def main():
         K = 11
         B = len(edges) - sci.binom(K, 2)
 
+        #plot_degree_dist(edges)
         #m = mipmodel(first_layer_edges, second_layer_edges, third_layer_edges, node_list, K, B)
         m = mipmodel_new(second_layer_edges, node_list_vertices, node_list_edges, B)
         m.optimize()
 
-        #print(m.getVars())
+        print(m.getVars())
 
-        #print(f"Here {m.alpha.VarName}")
+        print(f"Here {m.alpha.VarName}")
 
         for v in m.getVars():
-            if v.X != 0:
-                print(f"{v.VarName} {v.X:g}")
+           if v.X != 0:
+               print(f"{v.VarName} {v.X:g}")
 
         print(f"Obj: {m.ObjVal:g}")
 
