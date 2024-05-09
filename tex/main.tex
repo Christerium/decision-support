@@ -106,26 +106,57 @@
 % The target here is to find a capacity-$\gamma$-min-cut with high $\gamma$ (equals low \# of large arcs) wihle reducing a low cut capacity.
 
 
-\section{New Formulation}
-$\epsilon_P$ is indicatiing if path $P = (s, i, j, t)$ is interdicted. A path is interdicted if arc $(s,i)$ is of the path is interdicted.
-$\beta$ still has the same meaning. Set $S^j$ is a set of all paths that are going through vertice node $j$. And set $S^i$ is a set of paths
-going through edge nodes $i$.
-\begin{alignat*}{5}
-     & \min &  & \sum_{(i,j) \in E} &  & u_{(i,j)}\beta_{(i,j)} &  &                                 &  &                                                 \\
-     & s.t. &  &                    &  & \beta_{(j,t)}          &  & \geq (1-\epsilon_P) \quad \quad &  & \forall P \in S^j \; \forall j \in N_{vertices} \\
-     &      &  & \sum_{(i,j)\in E}  &  & \gamma_{(i,j)}         &  & \leq B                          &  & \forall P \in S^i \; \forall i \in N_{edges}
-\end{alignat*}
+% \section{New Formulation}
+% $\epsilon_P$ is indicatiing if path $P = (s, i, j, t)$ is interdicted. A path is interdicted if arc $(s,i)$ is of the path is interdicted.
+% $\beta$ still has the same meaning. Set $S^j$ is a set of all paths that are going through vertice node $j$. And set $S^i$ is a set of paths
+% going through edge nodes $i$.
+% \begin{alignat*}{5}
+%       & \min &  & \sum_{(i,j) \in E} &  & u_{(i,j)}\beta_{(i,j)} &  &                                 &  &                                                 \\
+%       & s.t. &  &                    &  & \beta_{(j,t)}          &  & \geq (1-\epsilon_P) \quad \quad &  & \forall P \in S^j \; \forall j \in N_{vertices} \\
+%       &      &  & \sum_{(i,j)\in E}  &  & \gamma_{(i,j)}         &  & \leq B                          &  & \forall P \in S^i \; \forall i \in N_{edges}
+% \end{alignat*}
 
 
-\section*{Old Formulation}
+% \section*{Old Formulation}
 
+% \begin{align*}
+%      \min &  & \sum_{(i,j) \in E} u_{(i,j)}\beta_{(i,j)}            &        &                                   \\
+%      s.t. &  & \alpha_i - \alpha_j + \beta_{(i,j)} + \gamma_{(i,j)} & \geq 0 & \forall (i,j) \in E               \\
+%           &  & \alpha_t - \alpha_s                                  & \geq 1 &                                   \\
+%           &  & \sum_{(i,j) \in E} \gamma_{(i,j)}                    & \leq B &                                   \\
+%           &  & \gamma_{(i,j)} = 0                                   &        & \forall (i,j) \notin first layer  \\
+%           &  & \beta{(i,j)} = 0                                     &        & \forall (i,j) \notin thrid layer
+% \end{align*}
+
+\section{Introduction}
+Our intial assignment was to solve the max-clique problem by transforming a graph into a network flow interdiction (NFI) graph and then using the bisection algorithm to find minmal cuts in the NFI graph. These minimal cuts, then would be used to find a clique of size $K$ in the original graph. This approach quickly turned out to be problematic, as $e^{'}/e^{*} \leq n^{*}/n^{'}$, where the prime indicates not in the clique and the star indicates in the clique and $n$ is the number of nodes in the graph and $e$ is the number of edges. This ratio is not true in many instances. Therefore, we decided to change our approach and use the integer programming formulation of the max-clique problem from Wood to solve the problem. As the max-clique problem is NP-hard and the formulation of Wood was not providing us with the hoped results, we decided to change the formulation to a new one, which we will present in this report.
+
+\section{Wood Formulation}
+$\alpha_i = 1$ for $i$ on the t side of the cut and $\alpha_i = 0$ for $i$ on the s side of the cut. $\beta_{(i,j)} = 1$ if arc $(i,j)$ is a forward arc across the cut but is not to be broke and $\gamma_{(i,j)} = 1$ if arc $(i,j)$ is a forward arc across the cut and is to be broken, all other $\beta_{(i,j)}$ and $\gamma_{(i,j)}$ are 0.  
 \begin{align*}
-    \min &  & \sum_{(i,j) \in E} u_{(i,j)}\beta_{(i,j)}            &        &                                  \\
-    s.t. &  & \alpha_i - \alpha_j + \beta_{(i,j)} + \gamma_{(i,j)} & \geq 0 & \forall (i,j) \in E              \\
-         &  & \alpha_t - \alpha_s                                  & \geq 1 &                                  \\
-         &  & \sum_{(i,j) \in E} \gamma_{(i,j)}                    & \leq B &                                  \\
-         &  & \gamma_{(i,j)} = 0                                   &        & \forall (i,j) \notin first layer \\
-         &  & \beta{(i,j)} = 0                                     &        & \forall (i,j) \notin thrid layer
+     \min &  & \sum_{(i,j) \in A} u_{(i,j)}\beta_{(i,j)}                                      \\
+     s.t. &  & \alpha_i - \alpha_j + \beta_{ij} + \gamma_{ij} & \leq 0 & \forall (i,j) \in A  \\
+          &  & \alpha_{t} - \alpha_{s}                        & \geq 1 &                      \\
+          &  & \sum_{(i,j) \in A} r_{ij}\gamma_{ij}           & \leq R &                      \\
+          &  & \alpha_i \in \{0,1\}                           &        & \forall i \in N      \\
+          &  & \beta_{ij}, \gamma_{ij} \in \{0,1\}            &        & \forall (i,j) \in A
 \end{align*}
-Test 123
+The objective function minimizes the cost of all forward arcs that are not to be broken, hence the maximum flow from $s$ to $t$ is minimized. Only in the case of a forward arc the first constraint is binding, as for $(\alpha_i = 1, \alpha_j = 0)$ both $\beta_{ij}$ and $\gamma_{ij}$ are 0. As well as for the case of $\alpha_i = \alpha_j$. Therefore, we only need to consider forward arcs ($\alpha_i = 0, \alpha_j = 1$). The first constraint then ensures that either $\beta_{ij}$ or $\gamma_{ij}$ is 1, so it is either a forward arc that is not to be broken or a forward arc that is to be broken. The second constraint ensures that $t$ and $s$ cannot be on the same side of the cut. The third constraint ensures that the total number of forward arcs that are to be broken is less than or equal to $R$.
+
+\section{Our End formulation}
+Let $N^E$ be the set of "edge nodes" and $N^V$ be the set of "vertice nodes" in a network flow interdiction graph (NFI), where an edge node is the node corresponding to an edge in the original graph and a vertice node is the node corresponding to a vertice in the original graph. Furhtermore, let $E$ be the set of edges ($i,j$) between the edge nodes $i$ and the vertice nodes $j$ in the NFI graph and $K$ be the clique size that is searched for. Then $\alpha_i = 1$ if node $i$ of the edge nodes is interdicted and $\gamma_j = 1$ if vertice node $j$ is not in the clique. 
+\begin{align*}
+     \min &  & \sum_{i \in N^E} \alpha_i  \\
+     s.t. &  & \alpha_i &\geq \gamma_j & \forall (i,j) \in E \\
+          &  & \sum_{j \in N^V} \gamma_j & \leq |N^V| - K \\
+          &  & \alpha_i,  && \forall i \in N^E \\ 
+          &  & \gamma_j,  & &\forall j \in N^V
+\end{align*}
+The objective function minimizes the number of not interdicted (in the clique) edge nodes. The first constraint ensures that an all edge nodes $i$ that are connected to an vertice node $j$, which is not in the clique (interdicted) are interdicted as well. The second constraint ensures that the number of vertice nodes that are not in the clique is less than or equal to $|N^V| - K$. 
+
+The idea behind this formulation is that, we do not have to consider all parts of the NFI graph, but only the parts that connect the edge nodes and the vertices nodes. The objective function value of this formulation gives the number of edge nodes that are not interdicted and therefore in the clique, if there are exactly $\binom{K}{2}$ edge nodes that are not interdicted, then we have found a clique of size $K$. This fulfills the two main critera found by Wood to determine a clique of size $K$ in a NFI graph, namely that the number of edge nodes that are interdicted is $|N^E| - \binom{K}{2}$ (all edges not in the clique are interdicted) and the number of verices nodes not interdicted equals $K$, the clique size. 
+
+\section{Results}
+We have implemented the above formulation in Python using the Gurobi solver. While we were able to verify the validity of our formulation on small instances, we were not able to solve the larger benchmark instances in a reasonable amount of time. The main reason for this is that the formulation is leveling out the fractional values in the LP-relaxation as much as possible. Therefore, we were not able to find the optimal integer solution. Additionally, we had the problem that only an integer solution with the objective value of $\binom{K}{2}$ would proof the existens of a clique of size $K$, with the objective value of the LP-relaxation not providing any information about the problem. 
+
 \end{document}

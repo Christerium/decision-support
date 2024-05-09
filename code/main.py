@@ -85,56 +85,17 @@ def mipmodel(first_layer_edges, second_layer_edges, third_layer_edges, node_list
 
     return m
 
-def mipmodel_new(second_layer_edges, vertice_nodes, edge_nodes, B):
-    m = gp.Model("mip2")
-
-    K = 2
-    #K_assumed = 35
-    # alpha is 1 if edge_node i is interdicted / not interdicted?
-    # gamma is 1 if vertice_node j is in the clique /interdicted?
-    alpha = m.addVars(edge_nodes, vtype=GRB.BINARY, name="alpha")
-    gamma = m.addVars(vertice_nodes, vtype=GRB.BINARY, name="gamma")
-
-    #m.setObjective(gamma.sum('*'), GRB.MINIMIZE)
-    #m.setObjective(alpha.sum('*'), GRB.MAXIMIZE)
-    m.setObjective(alpha.sum('*'), GRB.MINIMIZE)
-
-    for (i,j) in second_layer_edges:
-        #m.addConstr(gamma[j] >= (1-alpha[i]))
-        #m.addConstr(alpha[i] <= (1-gamma[j]))
-        m.addConstr(alpha[i] >= gamma[j])
-    
-    #m.addConstr(alpha.sum('*') >= 10000)
-    m.addConstr(gamma.sum('*') == len(vertice_nodes) - K)
-
-    # Testing a constraint that raises the objective value to the # of cliques
-    #m.addConstr(alpha.sum('*') >= len (edge_nodes) - sci.binom(K, 2))
-
-    return m
-
-def plot_degree_dist(edges):
-    G = create_graph_from_edges(edges)
-
-    degree_sequence = sorted([d for n, d in G.degree()], reverse=True)
-    degree_count = nx.degree_histogram(G)
-
-    plt.bar(range(len(degree_count)), degree_count, width = 0.8, color ='b')
-    plt.xlabel('Degree')
-    plt.ylabel('Frequency')
-    plt.title('Degree Distribution')
-    plt.show()
-
+def mip_model_new(first_layer_edges, second_layer_edges, third_layer_edges, node_list, K, B):
+    pass
 
 
 def main():
-    edges, num_vertices = read_instance("instances/C125.9.clq")     #reading a instance ("folder\\file") 
-    #edges, num_vertices = read_instance("instances/test.clq")
-    
+    edges, num_vertices = read_instance("instances/test.clq")     #reading a instance ("folder\\file") 
     #num_vertices = 4
     #edges = [(1,2), (1,3), (2,3), (3,4), (2,4)]
     # Vertices = nodes in original graph, Nodes = nodes in NFI graph
 
-    #edges = edges[0:300]
+    edges = edges[0:1000]
 
     node_list_edges = [f"i_{x}" for x in range(1,len(edges)+1)]
     node_list_vertices = [f"j_{x}" for x in range(1,num_vertices+1)]
@@ -150,7 +111,6 @@ def main():
         second_layer_edges.append((f"i_{iter}",f"j_{y}"))
         iter += 1
 
-        
 
 
     # G = create_graph_from_edges(edges[0:10])        # creating a graph
@@ -197,21 +157,19 @@ def main():
 
     try: 
 
-        K = 11
+        K = 3
         B = len(edges) - sci.binom(K, 2)
 
-        #plot_degree_dist(edges)
-        #m = mipmodel(first_layer_edges, second_layer_edges, third_layer_edges, node_list, K, B)
-        m = mipmodel_new(second_layer_edges, node_list_vertices, node_list_edges, B)
+        m = mipmodel(first_layer_edges, second_layer_edges, third_layer_edges, node_list, K, B)
         m.optimize()
 
-        print(m.getVars())
+        #print(m.getVars())
 
-        print(f"Here {m.alpha.VarName}")
+        #print(f"Here {m.alpha.VarName}")
 
         for v in m.getVars():
-           if v.X != 0:
-               print(f"{v.VarName} {v.X:g}")
+            if v.X != 0:
+                print(f"{v.VarName} {v.X:g}")
 
         print(f"Obj: {m.ObjVal:g}")
 

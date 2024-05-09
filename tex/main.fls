@@ -87,6 +87,8 @@ INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmex10.pf
 INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmex10.pfb
 INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi10.pfb
 INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi10.pfb
+INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi5.pfb
+INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi5.pfb
 INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi7.pfb
 INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi7.pfb
 INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmr10.pfb
@@ -99,5 +101,7 @@ INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmr7.pfb
 INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmr7.pfb
 INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy10.pfb
 INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy10.pfb
+INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy5.pfb
+INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy5.pfb
 INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy7.pfb
 INPUT /home/user/.miktex/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy7.pfb
