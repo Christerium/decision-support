@@ -85,7 +85,13 @@ def mipmodel(first_layer_edges, second_layer_edges, third_layer_edges, node_list
 
     return m
 
-def mipmodel_new(second_layer_edges, vertice_nodes, edge_nodes, B, K):
+
+
+
+
+############################################
+
+def mipmodel_new(second_layer_edges, vertice_nodes, edge_nodes, K):
     m = gp.Model("mip2")
 
     alpha = m.addVars(edge_nodes, vtype=GRB.BINARY, name="alpha")
@@ -99,10 +105,11 @@ def mipmodel_new(second_layer_edges, vertice_nodes, edge_nodes, B, K):
     m.addConstr(gamma.sum('*') == len(vertice_nodes) - K)
     print(len(vertice_nodes) - K)
     
-    L = sci.binom(K, 2)
-    m.addConstr(alpha.sum('*') <= L)
-
     return m
+
+
+###############################################################
+
 
 def mip_model_new(first_layer_edges, second_layer_edges, third_layer_edges, node_list, K, B):
     pass
@@ -182,7 +189,7 @@ def main():
 
         #m = mipmodel(first_layer_edges, second_layer_edges, third_layer_edges, node_list, K, B)
         
-        m = mipmodel_new(second_layer_edges, node_list_vertices, node_list_edges, B, K)
+        m = mipmodel_new(second_layer_edges, node_list_vertices, node_list_edges, K)
         m.optimize()
 
         #print(m.getVars())
